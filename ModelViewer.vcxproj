@@ -44,7 +44,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\code\cpplibs\OpenGL\includes</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);C:\code\cpplibs\OpenGL\includes;C:\code\cpplibs\glm-1.0.1;</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);C:\code\cpplibs\OpenGL\lib</LibraryPath>
     <PublicIncludeDirectories>$(ProjectDir)\include</PublicIncludeDirectories>
   </PropertyGroup>

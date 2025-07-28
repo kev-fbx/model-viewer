@@ -2,16 +2,17 @@
 #version 330 core
 
 layout(location = 0) in vec3 pos;
-layout(location = 1) in vec3 col;
-layout(location = 2) in vec2 inTexCoord;
+layout(location = 1) in vec2 inTexCoord;
 
-out vec3 outCol;
 out vec2 texCoord;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main()
 {
-    gl_Position = vec4(pos, 1.0);
-    outCol = col;
+    gl_Position = projection * view * model * vec4(pos, 1.0);
     texCoord = inTexCoord;
 };
 
@@ -19,13 +20,11 @@ void main()
 #version 330 core
 
 out vec4 FragColor;
-in vec3 outCol;
 in vec2 texCoord;
 
 uniform sampler2D texture1;
-uniform sampler2D texture2;
 
 void main()
 {
-    FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
+    FragColor = texture(texture1, texCoord);
 }
