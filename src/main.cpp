@@ -4,9 +4,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../include/stb_image.h"
-#include "../include/shader.h"
-#include "../include/camera.h"
+#include "stb_image.h"
+#include "shader.h"
+#include "camera.h"
 
 #include <iostream>
 
@@ -187,7 +187,7 @@ int main()
 	// Render loop
     while (!glfwWindowShouldClose(window))
     {
-        float currentFrame = glfwGetTime();
+        float currentFrame = (float)glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
