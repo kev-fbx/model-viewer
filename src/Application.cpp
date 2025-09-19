@@ -41,7 +41,7 @@ float cameraAngleY = 0.0f;
 const float zoomSpeed = 0.5f;
 const float rotationSpeed = 0.005f;
 
-bool middleMousePressed = false;
+bool leftMousePressed = false;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
@@ -157,7 +157,6 @@ int main(int argc, char* argv[])
             cameraPos.y = cameraTarget.y + verticalDistance;
             cameraPos.z = cameraTarget.z + horizontalDistance * cos(cameraAngleX);
 
-            // Always look at the target
             glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 
             ourShader.setMat4("view", view);
@@ -231,16 +230,16 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    if (button == GLFW_MOUSE_BUTTON_MIDDLE)
+    if (button == GLFW_MOUSE_BUTTON_LEFT)
     {
-        middleMousePressed = (action == GLFW_PRESS);
+        leftMousePressed = (action == GLFW_PRESS);
         firstMouse = true;
     }
 }
 
 void orbit_callback(GLFWwindow* window, double xPos, double yPos)
 {
-    if (!middleMousePressed)
+    if (!leftMousePressed)
     {
         lastX = xPos;
         lastY = yPos;
