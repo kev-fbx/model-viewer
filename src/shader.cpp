@@ -1,50 +1,195 @@
 #include "Shader.h"
 
+Shader::Shader()
+{
+	const char* vertexShaderSource = R"(
+#version 330 core
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in vec3 aNormal;
+layout(location = 2) in vec2 aTexCoord;
+
+out vec3 FragPos;
+out vec3 Normal;
+out vec2 TexCoord;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+    FragPos = vec3(model * vec4(aPos, 1.0));
+    Normal = mat3(transpose(inverse(model))) * aNormal;
+    TexCoord = aTexCoord;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+)";
+
+	const char* fragmentShaderSource = R"(
+#version 330 core
+out vec4 FragColor;
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoord;
+
+uniform vec3 lightPos = vec3(2.0, 4.0, 2.0);
+uniform vec3 lightColor = vec3(1.0, 1.0, 1.0);
+uniform vec3 viewPos = vec3(0.0, 0.0, 3.0);
+uniform vec3 objectColor = vec3(0.7, 0.7, 0.7);
+
+void main()
+{
+    // Ambient lighting
+    float ambientStrength = 0.3;
+    vec3 ambient = ambientStrength * lightColor;
+    
+    // Diffuse lighting
+    vec3 norm = normalize(Normal);
+    vec3 lightDir = normalize(lightPos - FragPos);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+    
+    // Specular lighting
+    float specularStrength = 0.5;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;
+    
+    // Combine all lighting components
+    vec3 result = (ambient + diffuse + specular) * objectColor;
+    FragColor = vec4(result, 1.0);
+}
+)";
+
+	unsigned int vertex, fragment;
+	int success;
+	char infoLog[512];
+
+	// Vertex shader
+	vertex = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex, 1, &vertexShaderSource, NULL);
+	glCompileShader(vertex);
+	checkCompileErrors(vertex, "VERTEX");
+
+	// Fragment shader
+	fragment = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment, 1, &fragmentShaderSource, NULL);
+	glCompileShader(fragment);
+	checkCompileErrors(fragment, "FRAGMENT");
+
+	// Shader program
+	ID = glCreateProgram();
+	glAttachShader(ID, vertex);
+	glAttachShader(ID, fragment);
+	glLinkProgram(ID);
+	checkCompileErrors(ID, "PROGRAM");
+
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
+}
+
 Shader::Shader(const std::string& path)
 {
 	std::ifstream stream(path);
-	std::string vCode;
-	std::string fCode;
-
-	enum class ShaderType
+	if (!stream.is_open())
 	{
-		NONE = -1, VERTEX = 0, FRAGMENT = 1
-	};
+		std::cout << "ERROR: Failed to open shader file: " << path << std::endl;
+		throw std::runtime_error("Failed to open shader file");
+	}
 
 	std::string line;
-	std::stringstream stringStream[2];
-	ShaderType type = ShaderType::NONE;
-		
+	std::stringstream vertexStream;
+	std::stringstream fragmentStream;
+	std::stringstream* currentStream = nullptr;
+
 	try
 	{
 		while (getline(stream, line))
 		{
+			line.erase(0, line.find_first_not_of(" \t\r\n"));
+			line.erase(line.find_last_not_of(" \t\r\n") + 1);
+
 			if (line.find("#shader") != std::string::npos)
 			{
 				if (line.find("vertex") != std::string::npos)
 				{
-					type = ShaderType::VERTEX;
+					currentStream = &vertexStream;
+					std::cout << "Switching to vertex shader section" << std::endl;
 				}
 				else if (line.find("fragment") != std::string::npos)
 				{
-					type = ShaderType::FRAGMENT;
+					currentStream = &fragmentStream;
+					std::cout << "Switching to fragment shader section" << std::endl;
 				}
+				continue;
+			}
+
+			if (currentStream != nullptr)
+			{
+				*currentStream << line << '\n';
 			}
 			else
 			{
-				stringStream[(int)type] << line << '\n';
+				std::cout << "WARNING: Line outside shader section: " << line << std::endl;
 			}
 		}
 	}
 	catch (std::ifstream::failure& e)
 	{
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+		throw;
 	}
-	vCode = stringStream[0].str();
-	fCode = stringStream[1].str();
+
+	std::string vCode = vertexStream.str();
+	std::string fCode = fragmentStream.str();
+
+	// Debug output
+	std::cout << "Vertex shader length: " << vCode.length() << " characters" << std::endl;
+	std::cout << "Fragment shader length: " << fCode.length() << " characters" << std::endl;
+
+	if (vCode.empty() || fCode.empty()) {
+		std::cout << "ERROR: Empty shader code extracted!" << std::endl;
+		throw std::runtime_error("Empty shader code");
+	}
 
 	const char* vSource = vCode.c_str();
 	const char* fSource = fCode.c_str();
+
+	unsigned int vertex, fragment;
+
+	vertex = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vertex, 1, &vSource, nullptr);
+	glCompileShader(vertex);
+	checkCompileErrors(vertex, "VERTEX");
+
+	fragment = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(fragment, 1, &fSource, nullptr);
+	glCompileShader(fragment);
+	checkCompileErrors(fragment, "FRAGMENT");
+
+	ID = glCreateProgram();
+	glAttachShader(ID, vertex);
+	glAttachShader(ID, fragment);
+	glLinkProgram(ID);
+	checkCompileErrors(ID, "PROGRAM");
+	glDeleteShader(vertex);
+	glDeleteShader(fragment);
+}
+
+Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath)
+{
+	std::ifstream vertexStream(vertexPath);
+	std::string vertexCode((std::istreambuf_iterator<char>(vertexStream)),
+		std::istreambuf_iterator<char>());
+
+	std::ifstream fragmentStream(fragmentPath);
+	std::string fragmentCode((std::istreambuf_iterator<char>(fragmentStream)),
+		std::istreambuf_iterator<char>());
+
+	const char* vSource = vertexCode.c_str();
+	const char* fSource = fragmentCode.c_str();
 
 	unsigned int vertex, fragment;
 
