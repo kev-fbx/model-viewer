@@ -65,10 +65,8 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     std::cout << "Has Texture Coords: " << mesh->HasTextureCoords(0) << std::endl;
     std::cout << "Material Index: " << mesh->mMaterialIndex << std::endl;
 
-    // Check vertex attribute locations
     if (mesh->HasPositions()) {
         std::cout << "Position attribute: OK" << std::endl;
-        // Print first few vertices to check scale
         for (unsigned int i = 0; i < std::min(3u, mesh->mNumVertices); i++) {
             std::cout << "Vertex " << i << ": (" << mesh->mVertices[i].x << ", "
                 << mesh->mVertices[i].y << ", " << mesh->mVertices[i].z << ")" << std::endl;
@@ -128,14 +126,12 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     for (unsigned int i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
-        // Retrieve all indices of the face and store them in the indices vector
         for (unsigned int j = 0; j < face.mNumIndices; j++)
             indices.push_back(face.mIndices[j]);
     }
 
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-    // Each diffuse texture should be named as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER
     std::vector<Texture> diffuseMaps = LoadTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 
@@ -159,25 +155,24 @@ std::vector<Texture> Model::LoadTextures(aiMaterial* mat, aiTextureType type, st
         aiString str;
         mat->GetTexture(type, i, &str);
 
-        // Check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
         for (unsigned int j = 0; j < textures_loaded.size(); j++)
         {
             if (std::strcmp(textures_loaded[j].path.data(), str.C_Str()) == 0)
             {
                 textures.push_back(textures_loaded[j]);
-                skip = true; // A texture with the same filepath has already been loaded, continue to next one
+                skip = true;
                 break;
             }
         }
         if (!skip)
-        {   // If texture hasn't been loaded already, load it
+        {
             Texture texture;
             texture.id = LoadTextureFile(str.C_Str(), this->directory);
             texture.type = typeName;
             texture.path = str.C_Str();
             textures.push_back(texture);
-            textures_loaded.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecessary load duplicate textures.
+            textures_loaded.push_back(texture);
         }
     }
     return textures;

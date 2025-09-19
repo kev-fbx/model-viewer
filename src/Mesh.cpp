@@ -23,17 +23,14 @@ void Mesh::InitMesh()
     GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO));
     GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW));
 
-    // Position attribute - location 0
     GLCall(glEnableVertexAttribArray(0));
     GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0));
 
-    // Normal attribute - location 1 (but our simple shader doesn't use it)
     if (vertices.size() > 0 && vertices[0].Normal != glm::vec3(0.0f)) {
         GLCall(glEnableVertexAttribArray(1));
         GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal)));
     }
 
-    // Texture coordinate attribute - location 2 (but our simple shader doesn't use it)
     if (!vertices.empty() && (vertices[0].TexCoords.x != 0.0f || vertices[0].TexCoords.y != 0.0f))
     {
         GLCall(glEnableVertexAttribArray(2));
