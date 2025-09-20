@@ -2,7 +2,11 @@
 
 ## Introduction
 ModelViewer is a dekstop application built using GLFW and OpenGL that allows users to open
-![gif](./doc/intro.gif)
+
+<p align="center">
+  <img src="doc/intro.gif" height="500">
+</p>
+
 ## Installation
 CMake is required to build the program. Download it [here](https://cmake.org/download/)
 1. Run the `setup_windows.bat` file.
