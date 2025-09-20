@@ -14,3 +14,7 @@ CMake is required to build the program. Download it [here](https://cmake.org/dow
 3. To open a 3D model file, there are 2 options (WIP):
 4. Drag and drop a 3D model file onto `ModelViewer.exe`, and the file will open in a new window automatically.
 5. Right click on a 3D model file and go to `Open with > Choose another app > ModelViewer.exe`
+
+To navigate the model, use LMB to orbit around the model, and MOUSE WHEEL to zoom in and out.
+
+The application also opens a terminal containing debug info.
