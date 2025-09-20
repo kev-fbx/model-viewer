@@ -1,5 +1,5 @@
 # ModelViewer
-___
+
 ## Introduction
 ModelViewer is a dekstop application built using GLFW and OpenGL that allows users to open
 
