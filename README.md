@@ -4,7 +4,7 @@
 ModelViewer is a dekstop application built using GLFW and OpenGL that allows users to open a variety of 3D file formats supported by the Assimp library. 
 
 <p align="center">
-  <img src="doc/intro.gif" height="250">
+  <img src="doc/intro.gif" height="350">
 </p>
 
 ## Installation & Usage
