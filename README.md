@@ -17,4 +17,4 @@ CMake is required to build the program. Download it [here](https://cmake.org/dow
 
 To navigate the model, use LMB to orbit around the model, and MOUSE WHEEL to zoom in and out.
 
-The application also opens a terminal containing debug info.
+The application also opens a terminal containing mesh loading debug info.
